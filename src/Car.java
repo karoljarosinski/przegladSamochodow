@@ -1,4 +1,6 @@
-public class Car {
+import java.io.Serializable;
+
+public class Car implements Serializable {
     private String type;
     private String brand;
     private String model;
@@ -18,5 +20,9 @@ public class Car {
     @Override
     public String toString() {
         return "Pojazd " + type + ", Marki " + brand + ", model " + model + ", Numer VIN: " + vin;
+    }
+
+    String toCsv() {
+        return type + ";" + brand + ";" + model + ";" + year + ";" + odo + ";" + vin;
     }
 }

@@ -3,5 +3,4 @@ public class Main {
         CarStationManager carStationManager = new CarStationManager();
         carStationManager.mainLoop();
     }
-
 }

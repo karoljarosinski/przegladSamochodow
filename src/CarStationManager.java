@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
@@ -5,9 +6,16 @@ import java.util.Scanner;
 public class CarStationManager {
     private Scanner scanner = new Scanner(System.in);
     private Queue<Car> carQueue = new LinkedList<>();
-
+    private static final String FILE_NAME = "carQueue.csv";
 
     void mainLoop() {
+        File file = new File(FILE_NAME);
+        if (file.exists()) {
+            System.out.println("Samochody oczekujące w kolejce: ");
+            carQueue = readFile(FILE_NAME);
+            System.out.println(carQueue);
+        }
+
         Option option;
         do {
             printOptions();
@@ -32,7 +40,50 @@ public class CarStationManager {
                     break;
             }
         } while (option != Option.EXIT);
+        for (Car car : carQueue) {
+            System.out.println(car);
+        }
+        if (carQueue.isEmpty()) {
+            file.deleteOnExit();
+        } else {
+            writeQueueToFile(carQueue, FILE_NAME);
+        }
     }
+
+    private Queue<Car> readFile(String fileName) {
+        Queue<Car> cars = new LinkedList<>();
+        File file = new File(fileName);
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] split = line.split(";");
+                int year = Integer.parseInt(split[3]);
+                int odo = Integer.parseInt(split[4]);
+                cars.offer(new Car(split[0], split[1], split[2], year, odo, split[5]));
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("Nie udało się odczytać pliku");
+        }
+        return cars;
+    }
+
+
+    private void writeQueueToFile(Queue<Car> carQueue, String fileName) {
+        if (!carQueue.isEmpty()) {
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+                for (Car car : carQueue) {
+                    writer.write(car.toCsv());
+                    writer.newLine();
+                }
+                writer.close();
+                System.out.println("Zapisano pozostałe samochody do pliku");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     private Car readAndCreateCar() {
         System.out.println("Podaj rodzaj pojazdu:");
